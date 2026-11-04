@@ -30,6 +30,23 @@
             padding-bottom: 1rem;
             color: #fff;
         }
+        /* Hidden Input Box styling */
+        #secret-post-box {
+            display: none; /* Stays invisible until W + Enter is pressed */
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+        #secret-post-box input {
+            width: 100%;
+            padding: 12px;
+            background-color: #0d1117;
+            border: 2px solid var(--accent-color);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+        }
         .change-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -70,46 +87,107 @@
 
     <div class="container">
         <h1>🛠️ My Code Deployment Logs</h1>
+        
+        <!-- Secret text dashboard input field container -->
+        <div id="secret-post-box">
+            <input type="text" id="log-text-input" placeholder="Type your change log description and press Enter to post publicly..." autocomplete="off">
+        </div>
+
         <div id="changelog-container">
             <div class="loading">Loading live updates from Firebase...</div>
         </div>
     </div>
 
-    <!-- Alternative Premium CDN for Perfect CORS Compliance -->
+    <!-- Firebase System Logic Framework via explicit multi-origin CDN mapping -->
     <script type="module">
         import { initializeApp } from "https://unpkg.com";
         import { getAnalytics } from "https://unpkg.com";
-        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://unpkg.com";
+        import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://unpkg.com";
 
-        // Your web app's Firebase configuration
+        // Your specific Firebase web infrastructure parameters
         const firebaseConfig = {
-            apiKey: "AIzaSyBecbii9Qow3mQBooXRsCycFdA99kxwGS4",
+            apiKey: "AIzaSyB-iofbUQKwpxNVvSoT8upxIQ7XmarOzL8",
             authDomain: "://firebaseapp.com",
-            projectId: "zalvethon",
-            storageBucket: "zalvethon.firebasestorage.app",
-            messagingSenderId: "352068217713",
-            appId: "1:352068217713:web:2f8dfcb04f8671c3ea24d0",
-            measurementId: "G-WBPJL565W7"
+            projectId: "public-zalvethon",
+            storageBucket: "public-zalvethon.firebasestorage.app",
+            messagingSenderId: "539371240873",
+            appId: "1:539371240873:web:bf6e353ca0a1ef10b058b8",
+            measurementId: "G-T7SFP06TDZ"
         };
 
-        // Initialize Firebase
+        // Initialize App Connection instances
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
-        
-        // Initialize Firestore Database
         const db = getFirestore(app);
 
-        // Fetch and listen for changes in real-time
         const changelogContainer = document.getElementById('changelog-container');
+        const secretPostBox = document.getElementById('secret-post-box');
+        const logTextInput = document.getElementById('log-text-input');
+
+        // Track combination event properties
+        let keysPressed = {};
+
+        window.addEventListener('keydown', (e) => {
+            keysPressed[e.key.toLowerCase()] = true;
+
+            // Trigger action hook: 'w' and 'enter' combined sequence mapping
+            if (keysPressed['w'] && keysPressed['enter']) {
+                e.preventDefault();
+                if (secretPostBox) {
+                    secretPostBox.style.display = 'block';
+                    logTextInput.focus();
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            delete keysPressed[e.key.toLowerCase()];
+        });
+
+        // Event parser binding to submit standard log schemas down to Firestore 'changes' collection
+        if (logTextInput) {
+            logTextInput.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter') {
+                    const textValue = logTextInput.value.trim();
+                    if (!textValue) return;
+
+                    try {
+                        logTextInput.disabled = true;
+                        logTextInput.placeholder = "Uploading to database...";
+
+                        // Public post configuration array matching custom rules structure map
+                        await addDoc(collection(db, "changes"), {
+                            description: textValue,
+                            author: "Public Admin",
+                            type: "Manual Update",
+                            timestamp: serverTimestamp()
+                        });
+
+                        logTextInput.value = '';
+                        secretPostBox.style.display = 'none';
+                    } catch (error) {
+                        console.error("Firestore Error detail: ", error);
+                        alert("Could not append log entry. Verify your Firebase console Firestore permissions rules matches.");
+                    } finally {
+                        logTextInput.disabled = false;
+                        logTextInput.placeholder = "Type your change log description and press Enter to post publicly...";
+                    }
+                }
+            });
+        }
+
+        // Live stream pipeline binding
         const changesQuery = query(collection(db, "changes"), orderBy("timestamp", "desc"));
 
         onSnapshot(changesQuery, (snapshot) => {
+            if (!changelogContainer) return;
+
             if (snapshot.empty) {
-                changelogContainer.innerHTML = '<div class="loading">No changes logged yet in the "changes" collection.</div>';
+                changelogContainer.innerHTML = '<div class="loading">No changes found in the "changes" database collection. Hold down W and hit Enter to post your first announcement.</div>';
                 return;
             }
 
-            changelogContainer.innerHTML = ''; // Clear loading screen
+            changelogContainer.innerHTML = ''; 
 
             snapshot.forEach((doc) => {
                 const data = doc.data();
@@ -122,7 +200,7 @@
                         <span>📅 ${date}</span>
                         <span>👤 ${data.author || 'Developer'}</span>
                     </div>
-                    <p class="change-description">${data.description || 'No description provided'}</p>
+                    <p class="change-description">${data.description || ''}</p>
                     <div>
                         <span class="tag">${data.type || 'Update'}</span>
                     </div>
@@ -130,8 +208,10 @@
                 changelogContainer.appendChild(card);
             });
         }, (error) => {
-            console.error("Firestore Error:", error);
-            changelogContainer.innerHTML = `<div class="loading" style="color: #ff6b6b;">Permission Error: ${error.message}<br>Check your Firestore Database rules!</div>`;
+            console.error("Pipeline failure log: ", error);
+            if (changelogContainer) {
+                changelogContainer.innerHTML = `<div class="loading" style="color: #ff6b6b;">Permission Error: ${error.message}</div>`;
+            }
         });
     </script>
 </body>
