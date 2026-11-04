@@ -78,20 +78,25 @@
     <!-- Firebase SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://gstatic.com";
+        import { getAnalytics } from "https://gstatic.com";
         import { getFirestore, collection, query, orderBy, onSnapshot } from "https://gstatic.com";
 
-        // Your Firebase Configuration (Replace with your actual keys from Firebase Console)
+        // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_://firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_://appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBecbii9Qow3mQBooXRsCycFdA99kxwGS4",
+            authDomain: "zalvethon.firebaseapp.com",
+            projectId: "zalvethon",
+            storageBucket: "zalvethon.firebasestorage.app",
+            messagingSenderId: "352068217713",
+            appId: "1:352068217713:web:2f8dfcb04f8671c3ea24d0",
+            measurementId: "G-WBPJL565W7"
         };
 
-        // Initialize Firebase & Firestore
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        
+        // Initialize Firestore Database
         const db = getFirestore(app);
 
         // Fetch and listen for changes in real-time
