@@ -75,12 +75,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK Modules -->
-        <!-- Firebase SDK Modules (Fixed www.gstatic.com URLs) -->
+    <!-- Alternative Premium CDN for Perfect CORS Compliance -->
     <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getAnalytics } from "https://gstatic.com";
-        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://gstatic.com";
+        import { initializeApp } from "https://unpkg.com";
+        import { getAnalytics } from "https://unpkg.com";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://unpkg.com";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -106,7 +105,7 @@
 
         onSnapshot(changesQuery, (snapshot) => {
             if (snapshot.empty) {
-                changelogContainer.innerHTML = '<div class="loading">No changes logged yet.</div>';
+                changelogContainer.innerHTML = '<div class="loading">No changes logged yet in the "changes" collection.</div>';
                 return;
             }
 
@@ -123,15 +122,17 @@
                         <span>📅 ${date}</span>
                         <span>👤 ${data.author || 'Developer'}</span>
                     </div>
-                    <p class="change-description">${data.description}</p>
+                    <p class="change-description">${data.description || 'No description provided'}</p>
                     <div>
                         <span class="tag">${data.type || 'Update'}</span>
                     </div>
                 `;
                 changelogContainer.appendChild(card);
             });
+        }, (error) => {
+            console.error("Firestore Error:", error);
+            changelogContainer.innerHTML = `<div class="loading" style="color: #ff6b6b;">Permission Error: ${error.message}<br>Check your Firestore Database rules!</div>`;
         });
     </script>
-
 </body>
 </html>
