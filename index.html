@@ -11,6 +11,8 @@
             --text-color: #c9d1d9;
             --accent-color: #58a6ff;
             --border-color: #30363d;
+            --error-color: #ff6b6b;
+            --success-color: #2ea44f;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -25,28 +27,131 @@
             width: 100%;
             max-width: 800px;
         }
-        h1 {
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            margin: 0;
+            color: #fff;
+            font-size: 1.8rem;
+        }
+        .admin-btn {
+            background-color: #21262d;
+            color: var(--accent-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .admin-btn:hover {
+            background-color: #30363d;
+        }
+        /* Modal Window Styling */
+        .modal {
+            display: none; 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            padding: 2rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .close-btn:hover {
             color: #fff;
         }
-        /* Hidden Input Box styling */
-        #secret-post-box {
-            display: none; /* Stays invisible until W + Enter is pressed */
-            margin-bottom: 2rem;
-            width: 100%;
+        .modal h2 {
+            margin-top: 0;
+            color: #fff;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
         }
-        #secret-post-box input {
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-bottom: 0.4rem;
+        }
+        .modal input[type="text"], 
+        .modal input[type="password"],
+        .modal textarea {
             width: 100%;
-            padding: 12px;
-            background-color: #0d1117;
-            border: 2px solid var(--accent-color);
+            padding: 10px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.95rem;
             box-sizing: border-box;
             outline: none;
         }
+        .modal input:focus,
+        .modal textarea:focus {
+            border-color: var(--accent-color);
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        .modal-btn:hover {
+            opacity: 0.9;
+        }
+        .error-msg {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        /* Posting Terminal Section */
+        #posting-terminal {
+            display: none;
+        }
+        .modal textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        /* Feed Stream Layout */
         .change-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -66,6 +171,7 @@
             font-size: 1.1rem;
             color: #f0f6fc;
             margin: 0 0 1rem 0;
+            white-space: pre-wrap;
         }
         .tag {
             display: inline-block;
@@ -86,11 +192,9 @@
 <body>
 
     <div class="container">
-        <h1>🛠️ My Code Deployment Logs</h1>
-        
-        <!-- Secret text dashboard input field container -->
-        <div id="secret-post-box">
-            <input type="text" id="log-text-input" placeholder="Type your change log description and press Enter to post publicly..." autocomplete="off">
+        <div class="header-container">
+            <h1>🛠️ Code Deployment Logs</h1>
+            <button class="admin-btn" id="open-login-modal">Admin Login</button>
         </div>
 
         <div id="changelog-container">
@@ -98,13 +202,45 @@
         </div>
     </div>
 
-    <!-- Firebase System Logic Framework via explicit multi-origin CDN mapping -->
+    <!-- Login & Posting Hub Modal Window -->
+    <div class="modal" id="admin-modal">
+        <div class="modal-content">
+            <button class="close-btn" id="close-modal">✕</button>
+            
+            <!-- VIEW 1: Name and Password Authentication Form -->
+            <div id="login-section">
+                <h2>Admin Verification</h2>
+                <div class="error-msg" id="login-error">Incorrect Name or Password.</div>
+                <div class="input-group">
+                    <label for="admin-name">NAME</label>
+                    <input type="text" id="admin-name" autocomplete="off" placeholder="Enter name...">
+                </div>
+                <div class="input-group">
+                    <label for="admin-pass">PASSWORD</label>
+                    <input type="password" id="admin-pass" placeholder="Enter password...">
+                </div>
+                <button class="modal-btn" id="submit-login">Verify Identity</button>
+            </div>
+
+            <!-- VIEW 2: The Unlocked Text Transmission Panel -->
+            <div id="posting-terminal">
+                <h2>Broadcast New Log</h2>
+                <div class="input-group">
+                    <label for="log-message">UPDATE DESCRIPTION</label>
+                    <textarea id="log-message" placeholder="What parts of the codebase did you change?"></textarea>
+                </div>
+                <button class="modal-btn" id="submit-post" style="background-color: var(--success-color);">Upload Live Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase System Module Layer -->
     <script type="module">
         import { initializeApp } from "https://unpkg.com";
         import { getAnalytics } from "https://unpkg.com";
         import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://unpkg.com";
 
-        // Your specific Firebase web infrastructure parameters
+        // Firebase project metadata parameters
         const firebaseConfig = {
             apiKey: "AIzaSyB-iofbUQKwpxNVvSoT8upxIQ7XmarOzL8",
             authDomain: "://firebaseapp.com",
@@ -115,104 +251,38 @@
             measurementId: "G-T7SFP06TDZ"
         };
 
-        // Initialize App Connection instances
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
+        // UI Element Selection Maps
         const changelogContainer = document.getElementById('changelog-container');
-        const secretPostBox = document.getElementById('secret-post-box');
-        const logTextInput = document.getElementById('log-text-input');
+        const adminModal = document.getElementById('admin-modal');
+        const openModalBtn = document.getElementById('open-login-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        
+        const loginSection = document.getElementById('login-section');
+        const postingTerminal = document.getElementById('posting-terminal');
+        const loginError = document.getElementById('login-error');
+        
+        const adminNameInput = document.getElementById('admin-name');
+        const adminPassInput = document.getElementById('admin-pass');
+        const logMessageInput = document.getElementById('log-message');
+        
+        const submitLoginBtn = document.getElementById('submit-login');
+        const submitPostBtn = document.getElementById('submit-post');
 
-        // Track combination event properties
-        let keysPressed = {};
-
-        window.addEventListener('keydown', (e) => {
-            keysPressed[e.key.toLowerCase()] = true;
-
-            // Trigger action hook: 'w' and 'enter' combined sequence mapping
-            if (keysPressed['w'] && keysPressed['enter']) {
-                e.preventDefault();
-                if (secretPostBox) {
-                    secretPostBox.style.display = 'block';
-                    logTextInput.focus();
-                }
-            }
+        // Modal Action Toggles
+        openModalBtn.addEventListener('click', () => {
+            adminModal.style.display = 'flex';
+            // Reset to step 1
+            loginSection.style.display = 'block';
+            postingTerminal.style.display = 'none';
+            loginError.style.display = 'none';
+            adminNameInput.value = '';
+            adminPassInput.value = '';
+            adminNameInput.focus();
         });
 
-        window.addEventListener('keyup', (e) => {
-            delete keysPressed[e.key.toLowerCase()];
-        });
-
-        // Event parser binding to submit standard log schemas down to Firestore 'changes' collection
-        if (logTextInput) {
-            logTextInput.addEventListener('keydown', async (e) => {
-                if (e.key === 'Enter') {
-                    const textValue = logTextInput.value.trim();
-                    if (!textValue) return;
-
-                    try {
-                        logTextInput.disabled = true;
-                        logTextInput.placeholder = "Uploading to database...";
-
-                        // Public post configuration array matching custom rules structure map
-                        await addDoc(collection(db, "changes"), {
-                            description: textValue,
-                            author: "Public Admin",
-                            type: "Manual Update",
-                            timestamp: serverTimestamp()
-                        });
-
-                        logTextInput.value = '';
-                        secretPostBox.style.display = 'none';
-                    } catch (error) {
-                        console.error("Firestore Error detail: ", error);
-                        alert("Could not append log entry. Verify your Firebase console Firestore permissions rules matches.");
-                    } finally {
-                        logTextInput.disabled = false;
-                        logTextInput.placeholder = "Type your change log description and press Enter to post publicly...";
-                    }
-                }
-            });
-        }
-
-        // Live stream pipeline binding
-        const changesQuery = query(collection(db, "changes"), orderBy("timestamp", "desc"));
-
-        onSnapshot(changesQuery, (snapshot) => {
-            if (!changelogContainer) return;
-
-            if (snapshot.empty) {
-                changelogContainer.innerHTML = '<div class="loading">No changes found in the "changes" database collection. Hold down W and hit Enter to post your first announcement.</div>';
-                return;
-            }
-
-            changelogContainer.innerHTML = ''; 
-
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const date = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'Just now';
-                
-                const card = document.createElement('div');
-                card.className = 'change-card';
-                card.innerHTML = `
-                    <div class="change-header">
-                        <span>📅 ${date}</span>
-                        <span>👤 ${data.author || 'Developer'}</span>
-                    </div>
-                    <p class="change-description">${data.description || ''}</p>
-                    <div>
-                        <span class="tag">${data.type || 'Update'}</span>
-                    </div>
-                `;
-                changelogContainer.appendChild(card);
-            });
-        }, (error) => {
-            console.error("Pipeline failure log: ", error);
-            if (changelogContainer) {
-                changelogContainer.innerHTML = `<div class="loading" style="color: #ff6b6b;">Permission Error: ${error.message}</div>`;
-            }
-        });
-    </script>
-</body>
-</html>
+        const hideModal = () => { adminModal.style.display = 'none'; };
