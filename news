@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Change Changelog</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --border-color: #30363d;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+        h1 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            color: #fff;
+        }
+        .change-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .change-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-bottom: 0.5rem;
+        }
+        .change-description {
+            font-size: 1.1rem;
+            color: #f0f6fc;
+            margin: 0 0 1rem 0;
+        }
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 2rem;
+            background-color: rgba(88, 166, 255, 0.15);
+            color: var(--accent-color);
+        }
+        .loading {
+            text-align: center;
+            color: #8b949e;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🛠️ My Code Deployment Logs</h1>
+        <div id="changelog-container">
+            <div class="loading">Loading live updates from Firebase...</div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Modules -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://gstatic.com";
+
+        // Your Firebase Configuration (Replace with your actual keys from Firebase Console)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_://firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_://appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase & Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Fetch and listen for changes in real-time
+        const changelogContainer = document.getElementById('changelog-container');
+        const changesQuery = query(collection(db, "changes"), orderBy("timestamp", "desc"));
+
+        onSnapshot(changesQuery, (snapshot) => {
+            if (snapshot.empty) {
+                changelogContainer.innerHTML = '<div class="loading">No changes logged yet.</div>';
+                return;
+            }
+
+            changelogContainer.innerHTML = ''; // Clear loading screen
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const date = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'Just now';
+                
+                const card = document.createElement('div');
+                card.className = 'change-card';
+                card.innerHTML = `
+                    <div class="change-header">
+                        <span>📅 ${date}</span>
+                        <span>👤 ${data.author || 'Developer'}</span>
+                    </div>
+                    <p class="change-description">${data.description}</p>
+                    <div>
+                        <span class="tag">${data.type || 'Update'}</span>
+                    </div>
+                `;
+                changelogContainer.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>
