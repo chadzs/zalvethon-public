@@ -1,364 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Change Changelog</title>
-    <style>
-        :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-color: #c9d1d9;
-            --accent-color: #58a6ff;
-            --border-color: #30363d;
-            --error-color: #ff6b6b;
-            --success-color: #2ea44f;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-        }
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-        }
-        h1 {
-            margin: 0;
-            color: #fff;
-            font-size: 1.8rem;
-        }
-        .admin-btn {
-            background-color: #21262d;
-            color: var(--accent-color);
-            border: 1px solid var(--border-color);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        .admin-btn:hover {
-            background-color: #30363d;
-        }
-        .modal {
-            display: none; 
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            width: 90%;
-            max-width: 450px;
-            padding: 2rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            color: #8b949e;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-        .close-btn:hover {
-            color: #fff;
-        }
-        .modal h2 {
-            margin-top: 0;
-            color: #fff;
-            font-size: 1.4rem;
-            margin-bottom: 1.5rem;
-        }
-        .input-group {
-            margin-bottom: 1rem;
-        }
-        .input-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: #8b949e;
-            margin-bottom: 0.4rem;
-        }
-        .modal input[type="text"], 
-        .modal input[type="password"],
-        .modal textarea {
-            width: 100%;
-            padding: 10px;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: #fff;
-            font-size: 0.95rem;
-            box-sizing: border-box;
-            outline: none;
-        }
-        .modal input:focus,
-        .modal textarea:focus {
-            border-color: var(--accent-color);
-        }
-        .modal-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: var(--accent-color);
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 0.5rem;
-        }
-        .modal-btn:hover {
-            opacity: 0.9;
-        }
-        .error-msg {
-            color: var(--error-color);
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
-            display: none;
-        }
-        #posting-terminal {
-            display: none;
-        }
-        .modal textarea {
-            resize: vertical;
-            min-height: 100px;
-            font-family: inherit;
-        }
-        .change-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .change-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            color: #8b949e;
-            margin-bottom: 0.5rem;
-        }
-        .change-description {
-            font-size: 1.1rem;
-            color: #f0f6fc;
-            margin: 0 0 1rem 0;
-            white-space: pre-wrap;
-        }
-        .tag {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 2rem;
-            background-color: rgba(88, 166, 255, 0.15);
-            color: var(--accent-color);
-        }
-        .loading {
-            text-align: center;
-            color: #8b949e;
-            padding: 2rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text Logs</title>
+<style>
+  :root { --bg:#0f1117; --card:#181b24; --line:#262b38; --text:#e7e9ee; --muted:#8b93a7; --accent:#6c8cff; --danger:#ff6c6c; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:center; max-width:720px; margin:0 auto; padding:20px 16px; }
+  h1 { font-size:1.3rem; margin:0; }
+  main { max-width:720px; margin:0 auto; padding:0 16px 60px; }
+  button { background:var(--accent); color:#fff; border:0; padding:9px 16px; border-radius:8px; font-size:.95rem; cursor:pointer; }
+  button.ghost { background:transparent; border:1px solid var(--line); color:var(--muted); }
+  button.danger { background:transparent; color:var(--danger); border:1px solid var(--line); padding:4px 10px; font-size:.8rem; }
+  input, textarea { width:100%; background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:10px; font:inherit; margin-bottom:10px; }
+  textarea { min-height:110px; resize:vertical; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .log-text { white-space:pre-wrap; word-wrap:break-word; line-height:1.5; }
+  .meta { display:flex; justify-content:space-between; align-items:center; margin-top:10px; color:var(--muted); font-size:.8rem; }
+  .empty { color:var(--muted); text-align:center; padding:40px 0; }
+  .hidden { display:none !important; }
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; padding:16px; }
+  .modal .card { width:100%; max-width:340px; margin:0; }
+  .err { color:var(--danger); font-size:.85rem; min-height:1.2em; margin-bottom:8px; }
+  .row { display:flex; gap:8px; justify-content:flex-end; }
+</style>
 </head>
 <body>
+<header>
+  <h1>📝 Text Logs</h1>
+  <div>
+    <button id="openLogin" class="ghost">Admin</button>
+    <button id="logoutBtn" class="ghost hidden">Log out</button>
+  </div>
+</header>
 
-    <div class="container">
-        <div class="header-container">
-            <h1>🛠️ Code Deployment Logs</h1>
-            <button class="admin-btn" id="open-login-modal">Admin Login</button>
-        </div>
+<main>
+  <section id="composer" class="card hidden">
+    <textarea id="logInput" placeholder="Write a new log..." maxlength="5000"></textarea>
+    <div class="row"><button id="postBtn">Post</button></div>
+  </section>
+  <section id="feed"><div class="empty">Loading…</div></section>
+</main>
 
-        <div id="changelog-container">
-            <div class="loading">Loading live updates from Firebase...</div>
-        </div>
+<div id="loginModal" class="modal hidden">
+  <form id="loginForm" class="card" autocomplete="off">
+    <h3 style="margin-top:0">Admin login</h3>
+    <input id="user" type="text" placeholder="Username" required autocomplete="username">
+    <input id="pass" type="password" placeholder="Password" required autocomplete="current-password">
+    <div id="loginErr" class="err"></div>
+    <div class="row">
+      <button type="button" id="cancelLogin" class="ghost">Cancel</button>
+      <button type="submit">Log in</button>
     </div>
+  </form>
+</div>
 
-    <div class="modal" id="admin-modal">
-        <div class="modal-content">
-            <button class="close-btn" id="close-modal">✕</button>
-            
-            <div id="login-section">
-                <h2>Admin Verification</h2>
-                <div class="error-msg" id="login-error">Incorrect Name or Password.</div>
-                <div class="input-group">
-                    <label for="admin-name">NAME</label>
-                    <input type="text" id="admin-name" autocomplete="off" placeholder="Enter name...">
-                </div>
-                <div class="input-group">
-                    <label for="admin-pass">PASSWORD</label>
-                    <input type="password" id="admin-pass" placeholder="Enter password...">
-                </div>
-                <button class="modal-btn" id="submit-login">Verify Identity</button>
-            </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-            <div id="posting-terminal">
-                <h2>Broadcast New Log</h2>
-                <div class="input-group">
-                    <label for="log-message">UPDATE DESCRIPTION</label>
-                    <textarea id="log-message" placeholder="What parts of the codebase did you change?"></textarea>
-                </div>
-                <button class="modal-btn" id="submit-post" style="background-color: var(--success-color);">Upload Live Entry</button>
-            </div>
-        </div>
-    </div>
+/* ====== 1. PASTE YOUR FIREBASE WEB CONFIG HERE ======
+   (Firebase console → Project settings → Your apps → Web app).
+   This config is safe to be public; security comes from the Firestore rules. */
+const firebaseConfig = {
+  apiKey: "AIzaSyB-iofbUQKwpxNVvSoT8upxIQ7XmarOzL8",
+  authDomain: "public-zalvethon.firebaseapp.com",
+  projectId: "public-zalvethon",
+  storageBucket: "public-zalvethon.firebasestorage.app",
+  messagingSenderId: "539371240873",
+  appId: "1:539371240873:web:bf6e353ca0a1ef10b058b8",
+  measurementId: "G-T7SFP06TDZ"
+};
 
-        <script type="module">
-        import { initializeApp } from "https://unpkg.com";
-        import { getAnalytics } from "https://unpkg.com";
-        import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://unpkg.com";
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB-iofbUQKwpxNVvSoT8upxIQ7XmarOzL8",
-            authDomain: "://firebaseapp.com",
-            projectId: "public-zalvethon",
-            storageBucket: "public-zalvethon.firebasestorage.app",
-            messagingSenderId: "539371240873",
-            appId: "1:539371240873:web:bf6e353ca0a1ef10b058b8",
-            measurementId: "G-T7SFP06TDZ"
-        };
+// The username is turned into an email for Firebase Auth. No password lives in this file.
+const toEmail = u => u.trim().toLowerCase() + "@chadlogs.app";
 
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const feed = $("feed");
 
-        const changelogContainer = document.getElementById('changelog-container');
-        const adminModal = document.getElementById('admin-modal');
-        const openModalBtn = document.getElementById('open-login-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        
-        const loginSection = document.getElementById('login-section');
-        const postingTerminal = document.getElementById('posting-terminal');
-        const loginError = document.getElementById('login-error');
-        
-        const adminNameInput = document.getElementById('admin-name');
-        const adminPassInput = document.getElementById('admin-pass');
-        const logMessageInput = document.getElementById('log-message');
-        
-        const submitLoginBtn = document.getElementById('submit-login');
-        const submitPostBtn = document.getElementById('submit-post');
+// ---------- Public feed (everyone can see, live) ----------
+let lastSnap = null;
+function render() {
+  feed.replaceChildren();
+  if (!lastSnap || lastSnap.empty) { feed.innerHTML = '<div class="empty">No logs yet.</div>'; return; }
+  lastSnap.forEach(d => {
+    const data = d.data();
+    const card = document.createElement("div"); card.className = "card";
+    const text = document.createElement("div"); text.className = "log-text"; text.textContent = data.text;
+    const meta = document.createElement("div"); meta.className = "meta";
+    const time = document.createElement("span");
+    time.textContent = data.createdAt ? data.createdAt.toDate().toLocaleString() : "just now";
+    meta.appendChild(time);
+    if (auth.currentUser) {
+      const del = document.createElement("button"); del.className = "danger"; del.textContent = "Delete";
+      del.onclick = () => confirm("Delete this log?") && deleteDoc(doc(db, "logs", d.id));
+      meta.appendChild(del);
+    }
+    card.append(text, meta);
+    feed.appendChild(card);
+  });
+}
+onSnapshot(query(collection(db, "logs"), orderBy("createdAt", "desc")), snap => {
+  lastSnap = snap; render();
+}, err => { feed.innerHTML = '<div class="empty">Could not load logs.</div>'; console.error(err); });
 
-        openModalBtn.addEventListener('click', () => {
-            adminModal.style.display = 'flex';
-            loginSection.style.display = 'block';
-            postingTerminal.style.display = 'none';
-            loginError.style.display = 'none';
-            adminNameInput.value = '';
-            adminPassInput.value = '';
-            adminNameInput.focus();
-        });
+// ---------- Admin login ----------
+$("openLogin").onclick = () => $("loginModal").classList.remove("hidden");
+$("cancelLogin").onclick = () => { $("loginModal").classList.add("hidden"); $("loginErr").textContent = ""; };
+$("loginForm").onsubmit = async e => {
+  e.preventDefault();
+  try {
+    await signInWithEmailAndPassword(auth, toEmail($("user").value), $("pass").value);
+    $("loginForm").reset(); $("loginErr").textContent = "";
+    $("loginModal").classList.add("hidden");
+  } catch { $("loginErr").textContent = "Wrong username or password."; }
+};
+$("logoutBtn").onclick = () => signOut(auth);
 
-        const hideModal = () => { adminModal.style.display = 'none'; };
-        closeModalBtn.addEventListener('click', hideModal);
-        window.addEventListener('click', (e) => { if(e.target === adminModal) hideModal(); });
+onAuthStateChanged(auth, user => {
+  const on = !!user;
+  $("composer").classList.toggle("hidden", !on);
+  $("logoutBtn").classList.toggle("hidden", !on);
+  $("openLogin").classList.toggle("hidden", on);
+  render();
+});
 
-        submitLoginBtn.addEventListener('click', () => {
-            const username = adminNameInput.value.trim();
-            const password = adminPassInput.value;
-
-            // Updated credentials check
-            if (username === 'chadzs' && password === '200613') {
-                loginError.style.display = 'none';
-                loginSection.style.display = 'none';
-                postingTerminal.style.display = 'block';
-                logMessageInput.focus();
-            } else {
-                loginError.style.display = 'block';
-            }
-        });
-
-        adminPassInput.addEventListener('keydown', (e) => {
-            if(e.key === 'Enter') submitLoginBtn.click();
-        });
-
-        submitPostBtn.addEventListener('click', async () => {
-            const postText = logMessageInput.value.trim();
-            if (!postText) return;
-
-            try {
-                submitPostBtn.disabled = true;
-                submitPostBtn.textContent = "Uploading change packet...";
-
-                await addDoc(collection(db, "changes"), {
-                    description: postText,
-                    author: "chadzs",
-                    type: "Verified Push",
-                    timestamp: serverTimestamp()
-                });
-
-                logMessageInput.value = '';
-                hideModal();
-            } catch (error) {
-                console.error("Firestore Save Error: ", error);
-                alert("Upload failed. Verify that your rules allow writing to the changes path.");
-            } finally {
-                submitPostBtn.disabled = false;
-                submitPostBtn.textContent = "Upload Live Entry";
-            }
-        });
-
-        const changesQuery = query(collection(db, "changes"), orderBy("timestamp", "desc"));
-
-        onSnapshot(changesQuery, (snapshot) => {
-            if (!changelogContainer) return;
-
-            if (snapshot.empty) {
-                changelogContainer.innerHTML = '<div class="loading">No records found. Click "Admin Login" above to append the initial system release log entry.</div>';
-                return;
-            }
-
-            changelogContainer.innerHTML = ''; 
-
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const date = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'Just now';
-                
-                const card = document.createElement('div');
-                card.className = 'change-card';
-                card.innerHTML = `
-                    <div class="change-header">
-                        <span>📅 ${date}</span>
-                        <span>👤 ${data.author || 'Developer'}</span>
-                    </div>
-                    <p class="change-description">${data.description || ''}</p>
-                    <div>
-                        <span class="tag">${data.type || 'Update'}</span>
-                    </div>
-                `;
-                changelogContainer.appendChild(card);
-            });
-        }, (error) => {
-            console.error("Cloud tracking channel subscription failed: ", error);
-            if (changelogContainer) {
-                changelogContainer.innerHTML = `<div class="loading" style="color: var(--error-color);">Connection error detail: ${error.message}</div>`;
-            }
-        });
-    </script>
+// ---------- Post ----------
+$("postBtn").onclick = async () => {
+  const text = $("logInput").value.trim();
+  if (!text) return;
+  $("postBtn").disabled = true;
+  try {
+    await addDoc(collection(db, "logs"), { text, createdAt: serverTimestamp() });
+    $("logInput").value = "";
+  } catch (e) { alert("Post failed — are you logged in as admin?"); console.error(e); }
+  $("postBtn").disabled = false;
+};
+</script>
 </body>
 </html>
-
