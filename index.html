@@ -122,7 +122,18 @@ $("loginForm").onsubmit = async e => {
     await signInWithEmailAndPassword(auth, toEmail($("user").value), $("pass").value);
     $("loginForm").reset(); $("loginErr").textContent = "";
     $("loginModal").classList.add("hidden");
-  } catch { $("loginErr").textContent = "Wrong username or password."; }
+  } catch (err) {
+    console.error(err.code, err.message);
+    const c = err.code || "";
+    $("loginErr").textContent =
+      c === "auth/invalid-credential" || c === "auth/invalid-login-credentials" || c === "auth/wrong-password" || c === "auth/user-not-found"
+        ? "Wrong username or password, or the admin user doesn't exist in Firebase yet. (" + c + ")"
+        : c === "auth/operation-not-allowed" || c === "auth/configuration-not-found"
+        ? "Email/Password sign-in isn't enabled in Firebase Authentication. (" + c + ")"
+        : c === "auth/too-many-requests"
+        ? "Too many attempts. Wait a few minutes and try again. (" + c + ")"
+        : "Login failed: " + c;
+  }
 };
 $("logoutBtn").onclick = () => signOut(auth);
 
