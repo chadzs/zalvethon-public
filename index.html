@@ -53,7 +53,6 @@
         .admin-btn:hover {
             background-color: #30363d;
         }
-        /* Modal Window Styling */
         .modal {
             display: none; 
             position: fixed;
@@ -142,7 +141,6 @@
             margin-bottom: 1rem;
             display: none;
         }
-        /* Posting Terminal Section */
         #posting-terminal {
             display: none;
         }
@@ -151,7 +149,6 @@
             min-height: 100px;
             font-family: inherit;
         }
-        /* Feed Stream Layout */
         .change-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -202,12 +199,10 @@
         </div>
     </div>
 
-    <!-- Login & Posting Hub Modal Window -->
     <div class="modal" id="admin-modal">
         <div class="modal-content">
             <button class="close-btn" id="close-modal">✕</button>
             
-            <!-- VIEW 1: Name and Password Authentication Form -->
             <div id="login-section">
                 <h2>Admin Verification</h2>
                 <div class="error-msg" id="login-error">Incorrect Name or Password.</div>
@@ -222,7 +217,6 @@
                 <button class="modal-btn" id="submit-login">Verify Identity</button>
             </div>
 
-            <!-- VIEW 2: The Unlocked Text Transmission Panel -->
             <div id="posting-terminal">
                 <h2>Broadcast New Log</h2>
                 <div class="input-group">
@@ -234,13 +228,11 @@
         </div>
     </div>
 
-    <!-- Firebase System Module Layer -->
-    <script type="module">
+        <script type="module">
         import { initializeApp } from "https://unpkg.com";
         import { getAnalytics } from "https://unpkg.com";
         import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://unpkg.com";
 
-        // Firebase project metadata parameters
         const firebaseConfig = {
             apiKey: "AIzaSyB-iofbUQKwpxNVvSoT8upxIQ7XmarOzL8",
             authDomain: "://firebaseapp.com",
@@ -251,12 +243,10 @@
             measurementId: "G-T7SFP06TDZ"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
-        // UI Element Selection Maps
         const changelogContainer = document.getElementById('changelog-container');
         const adminModal = document.getElementById('admin-modal');
         const openModalBtn = document.getElementById('open-login-modal');
@@ -273,10 +263,8 @@
         const submitLoginBtn = document.getElementById('submit-login');
         const submitPostBtn = document.getElementById('submit-post');
 
-        // Modal Action Toggles
         openModalBtn.addEventListener('click', () => {
             adminModal.style.display = 'flex';
-            // Reset to step 1
             loginSection.style.display = 'block';
             postingTerminal.style.display = 'none';
             loginError.style.display = 'none';
@@ -286,3 +274,91 @@
         });
 
         const hideModal = () => { adminModal.style.display = 'none'; };
+        closeModalBtn.addEventListener('click', hideModal);
+        window.addEventListener('click', (e) => { if(e.target === adminModal) hideModal(); });
+
+        submitLoginBtn.addEventListener('click', () => {
+            const username = adminNameInput.value.trim();
+            const password = adminPassInput.value;
+
+            // Updated credentials check
+            if (username === 'chadzs' && password === '200613') {
+                loginError.style.display = 'none';
+                loginSection.style.display = 'none';
+                postingTerminal.style.display = 'block';
+                logMessageInput.focus();
+            } else {
+                loginError.style.display = 'block';
+            }
+        });
+
+        adminPassInput.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') submitLoginBtn.click();
+        });
+
+        submitPostBtn.addEventListener('click', async () => {
+            const postText = logMessageInput.value.trim();
+            if (!postText) return;
+
+            try {
+                submitPostBtn.disabled = true;
+                submitPostBtn.textContent = "Uploading change packet...";
+
+                await addDoc(collection(db, "changes"), {
+                    description: postText,
+                    author: "chadzs",
+                    type: "Verified Push",
+                    timestamp: serverTimestamp()
+                });
+
+                logMessageInput.value = '';
+                hideModal();
+            } catch (error) {
+                console.error("Firestore Save Error: ", error);
+                alert("Upload failed. Verify that your rules allow writing to the changes path.");
+            } finally {
+                submitPostBtn.disabled = false;
+                submitPostBtn.textContent = "Upload Live Entry";
+            }
+        });
+
+        const changesQuery = query(collection(db, "changes"), orderBy("timestamp", "desc"));
+
+        onSnapshot(changesQuery, (snapshot) => {
+            if (!changelogContainer) return;
+
+            if (snapshot.empty) {
+                changelogContainer.innerHTML = '<div class="loading">No records found. Click "Admin Login" above to append the initial system release log entry.</div>';
+                return;
+            }
+
+            changelogContainer.innerHTML = ''; 
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const date = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'Just now';
+                
+                const card = document.createElement('div');
+                card.className = 'change-card';
+                card.innerHTML = `
+                    <div class="change-header">
+                        <span>📅 ${date}</span>
+                        <span>👤 ${data.author || 'Developer'}</span>
+                    </div>
+                    <p class="change-description">${data.description || ''}</p>
+                    <div>
+                        <span class="tag">${data.type || 'Update'}</span>
+                    </div>
+                `;
+                changelogContainer.appendChild(card);
+            });
+        }, (error) => {
+            console.error("Cloud tracking channel subscription failed: ", error);
+            if (changelogContainer) {
+                changelogContainer.innerHTML = `<div class="loading" style="color: var(--error-color);">Connection error detail: ${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
+
